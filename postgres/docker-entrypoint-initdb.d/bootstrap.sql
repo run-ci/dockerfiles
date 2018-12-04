@@ -1,31 +1,41 @@
-CREATE TABLE git_repos (
-    remote varchar(255) NOT NULL,
+CREATE TABLE projects (
+    id SERIAL NOT NULL UNIQUE,
+    name varchar(255)
+);
+
+CREATE TABLE git_remotes (
+    url varchar(255) NOT NULL,
     branch varchar(255) NOT NULL,
 
-    PRIMARY KEY(remote, branch),
-    UNIQUE(remote, branch)
+    project_id INTEGER NOT NULL,
+
+    FOREIGN KEY (project_id) REFERENCES projects(id),
+    PRIMARY KEY(url, branch),
+    UNIQUE(url, branch)
 );
 
 CREATE TABLE pipelines (
-    remote varchar(255) NOT NULL UNIQUE,
-    ref varchar(255) NOT NULL,
+    id SERIAL NOT NULL UNIQUE,
     name varchar(255) NOT NULL,
 
-    PRIMARY KEY(remote, name),
-    UNIQUE(remote, name)
+    remote_url varchar(255) NOT NULL,
+    remote_branch varchar(255) NOT NULL,
+
+    FOREIGN KEY (remote_url, remote_branch) REFERENCES git_remotes(url, branch),
+    PRIMARY KEY(id)
 );
 
 CREATE TABLE runs (
+    /* The count is scoped to the pipeline. It's not an overall count. */
     count INTEGER NOT NULL,
     start_time timestamp NOT NULL,
     end_time timestamp,
     success boolean,
 
-    pipeline_remote varchar(255) NOT NULL,
-    pipeline_name varchar(255) NOT NULL,
+    pipeline_id INTEGER NOT NULL,
 
-    FOREIGN KEY (pipeline_remote, pipeline_name) REFERENCES pipelines(remote, name),
-    PRIMARY KEY (pipeline_remote, pipeline_name, count)
+    FOREIGN KEY (pipeline_id) REFERENCES pipelines(id),
+    PRIMARY KEY (pipeline_id, count)
 );
 
 CREATE TABLE steps (
@@ -35,11 +45,12 @@ CREATE TABLE steps (
     end_time timestamp,
     success boolean,
 
-    pipeline_remote varchar(255) NOT NULL,
-    pipeline_name varchar(255) NOT NULL,
+    /* Pipelines can change over time. For this reason, stored steps must
+    belong to the pipeline run and not necessarily the overall pipeline. */
+    pipeline_id INTEGER NOT NULL,
     run_count INTEGER NOT NULL,
 
-    FOREIGN KEY (pipeline_remote, pipeline_name, run_count) REFERENCES runs(pipeline_remote, pipeline_name, count),
+    FOREIGN KEY (pipeline_id, run_count) REFERENCES runs(pipeline_id, count),
     PRIMARY KEY (id)
 );
 
@@ -55,12 +66,3 @@ CREATE TABLE tasks (
     FOREIGN KEY (step_id) REFERENCES steps(id),
     PRIMARY KEY (id)
 );
-
-INSERT INTO git_repos (remote, branch)
-VALUES
-    ('https://github.com/run-ci/run-server.git', 'master');
-
-INSERT INTO pipelines (remote, ref, name)
-VALUES
-    ('https://github.com/run-ci/runlet', 'master', 'default'),
-    ('https://github.com/run-ci/run', 'master', 'default');

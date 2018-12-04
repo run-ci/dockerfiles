@@ -1,0 +1,22 @@
+---
+summary: Package Docker container images.
+
+description: |
+  The `package` task builds the container image for
+  the specified build context. The name of the build
+  context will also be used to tag the image.
+
+  For example, `IMAGE_NAME=postgres run package` will
+  build the container image for the build context in
+  the `postgres` folder and tag the image `runci/postgres`.
+
+image: docker:latest
+
+command: docker build -t runci/$IMAGE_NAME:$IMAGE_TAG $IMAGE_NAME
+
+arguments:
+  IMAGE_NAME:
+    description: The sub-folder to use as the build context for Docker.
+  IMAGE_TAG:
+    description: The tag to give the image.
+    default: latest

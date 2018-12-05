@@ -1,6 +1,7 @@
 CREATE TABLE projects (
     id SERIAL NOT NULL UNIQUE,
-    name varchar(255)
+    name varchar(255),
+    description varchar(255)
 );
 
 CREATE TABLE git_remotes (
@@ -17,11 +18,14 @@ CREATE TABLE git_remotes (
 CREATE TABLE pipelines (
     id SERIAL NOT NULL UNIQUE,
     name varchar(255) NOT NULL,
+    success boolean,
 
     remote_url varchar(255) NOT NULL,
     remote_branch varchar(255) NOT NULL,
+    project_id INTEGER NOT NULL,
 
     FOREIGN KEY (remote_url, remote_branch) REFERENCES git_remotes(url, branch),
+    FOREIGN KEY (project_id) REFERENCES projects(id),
     PRIMARY KEY(id)
 );
 

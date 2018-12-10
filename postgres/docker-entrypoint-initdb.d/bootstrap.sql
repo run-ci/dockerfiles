@@ -70,3 +70,19 @@ CREATE TABLE tasks (
     FOREIGN KEY (step_id) REFERENCES steps(id),
     PRIMARY KEY (id)
 );
+
+CREATE TABLE groups (
+    name varchar(255) NOT NULL UNIQUE,
+
+    PRIMARY KEY (name)
+);
+
+CREATE TABLE users (
+    email varchar(255) NOT NULL UNIQUE,
+    password varchar(255) NOT NULL UNIQUE,
+
+    group_name varchar(255),
+
+    FOREIGN KEY (group_name) REFERENCES groups(name),
+    PRIMARY KEY (email)
+);

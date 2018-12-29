@@ -1,7 +1,11 @@
 CREATE TABLE projects (
     id SERIAL NOT NULL UNIQUE,
     name varchar(255),
-    description varchar(255)
+    description varchar(255),
+
+    user_email varchar(255) NOT NULL,
+    group_name varchar(255) NOT NULL,
+    permissions smallint NOT NULL
 );
 
 CREATE TABLE git_remotes (
@@ -80,6 +84,8 @@ CREATE TABLE groups (
 CREATE TABLE users (
     email varchar(255) NOT NULL UNIQUE,
     password varchar(255) NOT NULL UNIQUE,
+
+    name varchar(255) NOT NULL,
 
     group_name varchar(255),
 
